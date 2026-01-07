@@ -1,0 +1,159 @@
+.live-matches-page {
+  padding: 40px 20px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.live-matches-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 25px;
+}
+
+.live-match-card {
+  background: #2d3748;
+  border-radius: 12px;
+  padding: 25px;
+  border: 1px solid #4a5568;
+  transition: all 0.3s;
+}
+
+.live-match-card:hover {
+  border-color: #ef4444;
+  transform: translateY(-2px);
+}
+
+.live-match-header {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.live-badge {
+  background: #ef4444;
+  color: #ffffff;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+.live-match-header h3 {
+  color: #ffffff;
+  margin: 0;
+  font-size: 1.2rem;
+}
+
+.live-match-teams {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 15px;
+}
+
+.live-match-teams .team {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.live-match-teams .team img {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+}
+
+.live-match-teams .team span {
+  color: #ffffff;
+  font-weight: 500;
+}
+
+.live-match-description {
+  color: #9ca3af;
+  font-size: 0.9rem;
+  margin: 15px 0 0 0;
+  line-height: 1.5;
+}
+
+.image-upload-section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.btn-upload {
+  background: #3b82f6;
+  color: #ffffff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9rem;
+  transition: background 0.3s;
+}
+
+.btn-upload:hover {
+  background: #2563eb;
+}
+
+.btn-upload:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-upload .spinner {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.image-preview {
+  position: relative;
+  display: inline-block;
+  margin-top: 10px;
+}
+
+.image-preview img {
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 2px solid #4a5568;
+}
+
+.btn-remove-image {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background: #ef4444;
+  color: #ffffff;
+  border: none;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  line-height: 1;
+}
+
+.btn-remove-image:hover {
+  background: #dc2626;
+}
+
+@media (max-width: 768px) {
+  .live-matches-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
