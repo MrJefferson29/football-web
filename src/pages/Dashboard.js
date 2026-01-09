@@ -14,8 +14,9 @@ import {
   FaEye,
   FaComments,
   FaShoppingBag,
+  FaTrophy,
 } from 'react-icons/fa';
-import { statisticsAPI, matchesAPI, highlightsAPI, newsAPI, liveMatchesAPI, fanGroupsAPI, pollsAPI, productsAPI } from '../utils/api';
+import { statisticsAPI, matchesAPI, highlightsAPI, newsAPI, liveMatchesAPI, fanGroupsAPI, pollsAPI, productsAPI, predictionForumsAPI } from '../utils/api';
 import './Dashboard.css';
 
 const Dashboard = () => {
@@ -27,6 +28,7 @@ const Dashboard = () => {
     totalLiveMatches: 0,
     totalFanGroups: 0,
     totalProducts: 0,
+    totalPredictionForums: 0,
     totalVotes: 0,
   });
   const [loading, setLoading] = useState(true);
@@ -38,7 +40,7 @@ const Dashboard = () => {
   const fetchStats = async () => {
     try {
       setLoading(true);
-      const [statsRes, matchesRes, highlightsRes, newsRes, liveMatchesRes, fanGroupsRes, pollsRes, productsRes] = await Promise.all([
+      const [statsRes, matchesRes, highlightsRes, newsRes, liveMatchesRes, fanGroupsRes, pollsRes, productsRes, predictionForumsRes] = await Promise.all([
         statisticsAPI.getStatistics().catch(() => ({ data: { overall: { totalVotes: 0 } } })),
         matchesAPI.getMatches().catch(() => ({ data: [] })),
         highlightsAPI.getHighlights().catch(() => ({ data: [] })),
@@ -47,6 +49,7 @@ const Dashboard = () => {
         fanGroupsAPI.getFanGroups().catch(() => ({ data: [] })),
         pollsAPI.getPolls().catch(() => ({ data: [] })),
         productsAPI.getProducts().catch(() => ({ data: [] })),
+        predictionForumsAPI.getPredictionForums().catch(() => ({ success: false, data: [] })),
       ]);
 
       setStats({
@@ -57,6 +60,7 @@ const Dashboard = () => {
         totalLiveMatches: liveMatchesRes.data?.length || 0,
         totalFanGroups: fanGroupsRes.data?.length || 0,
         totalProducts: productsRes.data?.length || 0,
+        totalPredictionForums: predictionForumsRes.data?.length || 0,
         totalVotes: statsRes.data?.overall?.totalVotes || 0,
       });
     } catch (error) {
@@ -76,12 +80,28 @@ const Dashboard = () => {
       stat: stats.totalPolls,
     },
     {
-      title: 'Manage Matches',
-      description: 'Add and update matches with league information',
+      title: 'International Leagues',
+      description: 'Add and update international football matches',
       icon: FaFutbol,
       path: '/matches',
       color: '#10B981',
       stat: stats.totalMatches,
+    },
+    {
+      title: 'Local Leagues',
+      description: 'Add and update local football matches',
+      icon: FaFutbol,
+      path: '/local-leagues',
+      color: '#3B82F6',
+      stat: 0,
+    },
+    {
+      title: 'Inter-Quarter League',
+      description: 'Add and update inter-quarter football matches',
+      icon: FaFutbol,
+      path: '/inter-quarter-league',
+      color: '#F59E0B',
+      stat: 0,
     },
     {
       title: 'Highlights',
@@ -114,6 +134,14 @@ const Dashboard = () => {
       path: '/fan-groups',
       color: '#EC4899',
       stat: stats.totalFanGroups,
+    },
+    {
+      title: 'Prediction Forums',
+      description: 'Manage prediction forums and assign forum heads',
+      icon: FaTrophy,
+      path: '/prediction-forums',
+      color: '#F59E0B',
+      stat: stats.totalPredictionForums,
     },
     {
       title: 'Statistics',
@@ -179,11 +207,11 @@ const Dashboard = () => {
                 <div className="card-content">
                   <h3>{link.title}</h3>
                   <p>{link.description}</p>
-                  {link.stat !== undefined && (
-                    <span className="card-stat" style={{ color: link.color }}>
-                      {link.stat} {link.title.includes('Polls') ? 'polls' : link.title.includes('Matches') ? 'matches' : link.title.includes('Highlights') ? 'videos' : link.title.includes('News') ? 'articles' : link.title.includes('Groups') ? 'groups' : 'items'}
-                    </span>
-                  )}
+                      {link.stat !== undefined && (
+                        <span className="card-stat" style={{ color: link.color }}>
+                          {link.stat} {link.title.includes('Polls') ? 'polls' : link.title.includes('Matches') ? 'matches' : link.title.includes('Highlights') ? 'videos' : link.title.includes('News') ? 'articles' : link.title.includes('Groups') ? 'groups' : link.title.includes('Prediction Forums') ? 'forums' : 'items'}
+                        </span>
+                      )}
                 </div>
                 <div className="card-arrow">
                   <FaArrowRight />

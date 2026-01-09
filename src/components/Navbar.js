@@ -2,7 +2,7 @@ import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { 
   FaHome, FaPoll, FaFutbol, FaVideo, FaNewspaper, 
-  FaTv, FaUsers, FaChartBar, FaShoppingBag, FaSignOutAlt, FaBars, FaTimes 
+  FaTv, FaUsers, FaChartBar, FaShoppingBag, FaSignOutAlt, FaBars, FaTimes, FaTrophy
 } from 'react-icons/fa';
 import { authAPI } from '../utils/api';
 import './Navbar.css';
@@ -20,11 +20,14 @@ const Navbar = () => {
   const navItems = [
     { path: '/', icon: FaHome, label: 'Dashboard' },
     { path: '/polls', icon: FaPoll, label: 'Polls' },
-    { path: '/matches', icon: FaFutbol, label: 'Matches' },
+    { path: '/matches', icon: FaFutbol, label: 'International Leagues' },
+    { path: '/local-leagues', icon: FaFutbol, label: 'Local Leagues' },
+    { path: '/inter-quarter-league', icon: FaFutbol, label: 'Inter-Quarter League' },
     { path: '/highlights', icon: FaVideo, label: 'Highlights' },
     { path: '/news', icon: FaNewspaper, label: 'News' },
     { path: '/live-matches', icon: FaTv, label: 'Live Matches' },
     { path: '/fan-groups', icon: FaUsers, label: 'Fan Groups' },
+    { path: '/prediction-forums', icon: FaTrophy, label: 'Prediction Forums' },
     { path: '/statistics', icon: FaChartBar, label: 'Statistics' },
     { path: '/products', icon: FaShoppingBag, label: 'Shop Products' },
   ];

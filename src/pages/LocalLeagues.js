@@ -3,7 +3,7 @@ import { FaFutbol, FaPlus, FaEdit, FaTrash, FaSave, FaTimes, FaUpload, FaSpinner
 import { matchesAPI, uploadAPI } from '../utils/api';
 import './Matches.css';
 
-const Matches = () => {
+const LocalLeagues = () => {
   const [matches, setMatches] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
@@ -16,7 +16,7 @@ const Matches = () => {
     matchTime: '',
     matchDate: '',
     league: '',
-    leagueType: 'international',
+    leagueType: 'local',
   });
   const [message, setMessage] = useState({ type: '', text: '' });
   const [uploading, setUploading] = useState({ homeLogo: false, awayLogo: false });
@@ -24,9 +24,6 @@ const Matches = () => {
   const awayLogoInputRef = useRef(null);
   const [scoreInputs, setScoreInputs] = useState({});
   const [savingScore, setSavingScore] = useState({});
-  const [showVoteModal, setShowVoteModal] = useState(false);
-  const [selectedMatchForVotes, setSelectedMatchForVotes] = useState(null);
-  const [loadingMatchDetails, setLoadingMatchDetails] = useState(false);
 
   useEffect(() => {
     fetchMatches();
@@ -35,7 +32,7 @@ const Matches = () => {
   const fetchMatches = async () => {
     try {
       setLoading(true);
-      const response = await matchesAPI.getMatches({ leagueType: 'international' });
+      const response = await matchesAPI.getMatches({ leagueType: 'local' });
       if (response.success) {
         setMatches(response.data);
         // Initialize score inputs
@@ -66,7 +63,7 @@ const Matches = () => {
       matchTime: '',
       matchDate: new Date().toISOString().split('T')[0],
       league: '',
-      leagueType: 'international',
+      leagueType: 'local',
     });
   };
 
@@ -81,7 +78,7 @@ const Matches = () => {
       matchTime: match.matchTime,
       matchDate: new Date(match.matchDate).toISOString().split('T')[0],
       league: match.league,
-      leagueType: match.leagueType,
+      leagueType: match.leagueType || 'local',
     });
   };
 
@@ -162,33 +159,6 @@ const Matches = () => {
     }
   };
 
-  const handleMatchClick = async (match, e) => {
-    // Don't open modal if clicking on edit button or its parent
-    if (e.target.closest('.btn-edit-small') || e.target.closest('.score-entry')) {
-      return;
-    }
-    
-    try {
-      setLoadingMatchDetails(true);
-      setSelectedMatchForVotes(match);
-      // Fetch full match details to get updated vote counts
-      const response = await matchesAPI.getMatch(match._id);
-      if (response.success) {
-        setSelectedMatchForVotes(response.data);
-        setShowVoteModal(true);
-      }
-    } catch (error) {
-      setMessage({ type: 'error', text: 'Failed to load match details' });
-    } finally {
-      setLoadingMatchDetails(false);
-    }
-  };
-
-  const closeVoteModal = () => {
-    setShowVoteModal(false);
-    setSelectedMatchForVotes(null);
-  };
-
   if (loading) {
     return <div className="loading">Loading matches...</div>;
   }
@@ -196,8 +166,8 @@ const Matches = () => {
   return (
     <div className="matches-page">
       <div className="page-header">
-        <h1>International Leagues</h1>
-        <p>Create and manage international football matches</p>
+        <h1>Local Leagues</h1>
+        <p>Create and manage local football matches</p>
         <button className="btn-add" onClick={handleAdd}>
           <FaPlus /> Add New Match
         </button>
@@ -326,7 +296,7 @@ const Matches = () => {
                   onChange={(e) => setFormData({ ...formData, leagueType: e.target.value })}
                   required
                 >
-                  <option value="international">International</option>
+                  <option value="local">Local</option>
                 </select>
               </div>
             </div>
@@ -345,12 +315,7 @@ const Matches = () => {
       <div className="matches-list">
         {matches.length > 0 ? (
           matches.map((match) => (
-            <div 
-              key={match._id} 
-              className="match-card" 
-              onClick={(e) => handleMatchClick(match, e)}
-              style={{ cursor: 'pointer' }}
-            >
+            <div key={match._id} className="match-card">
               <div className="match-header">
                 <div className="match-teams">
                   <div className="team">
@@ -363,13 +328,7 @@ const Matches = () => {
                     <img src={match.awayLogo || 'https://via.placeholder.com/40'} alt={match.awayTeam} />
                   </div>
                 </div>
-                <button 
-                  className="btn-edit-small" 
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleEdit(match);
-                  }}
-                >
+                <button className="btn-edit-small" onClick={() => handleEdit(match)}>
                   <FaEdit />
                 </button>
               </div>
@@ -378,7 +337,7 @@ const Matches = () => {
                   <strong>League:</strong> {match.league || 'N/A'}
                 </span>
                 <span className="detail-item">
-                  <strong>Type:</strong> {match.leagueType || 'international'}
+                  <strong>Type:</strong> {match.leagueType || 'local'}
                 </span>
                 <span className="detail-item">
                   <strong>Time:</strong> {match.matchTime}
@@ -412,10 +371,7 @@ const Matches = () => {
                   </div>
                   <button
                     className="btn-save-score"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleSaveScore(match._id);
-                    }}
+                    onClick={() => handleSaveScore(match._id)}
                     disabled={savingScore[match._id]}
                   >
                     {savingScore[match._id] ? <FaSpinner className="spinner" /> : <FaSave />} Save Final Score
@@ -433,123 +389,8 @@ const Matches = () => {
           <div className="empty-state">No matches found</div>
         )}
       </div>
-
-      {/* Vote Modal */}
-      {showVoteModal && selectedMatchForVotes && (
-        <div className="modal-overlay" onClick={closeVoteModal}>
-          <div className="modal-content vote-modal" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
-              <h2>Match Votes</h2>
-              <button className="modal-close" onClick={closeVoteModal}>
-                <FaTimes />
-              </button>
-            </div>
-            {loadingMatchDetails ? (
-              <div className="loading">Loading vote details...</div>
-            ) : (
-              <div className="vote-modal-body">
-                <div className="vote-match-info">
-                  <div className="vote-teams">
-                    <div className="vote-team">
-                      <img src={selectedMatchForVotes.homeLogo || 'https://via.placeholder.com/50'} alt={selectedMatchForVotes.homeTeam} />
-                      <span>{selectedMatchForVotes.homeTeam}</span>
-                    </div>
-                    <span className="vote-vs">VS</span>
-                    <div className="vote-team">
-                      <img src={selectedMatchForVotes.awayLogo || 'https://via.placeholder.com/50'} alt={selectedMatchForVotes.awayTeam} />
-                      <span>{selectedMatchForVotes.awayTeam}</span>
-                    </div>
-                  </div>
-                  <div className="vote-match-details">
-                    <p><strong>League:</strong> {selectedMatchForVotes.league || 'N/A'}</p>
-                    <p><strong>Date:</strong> {new Date(selectedMatchForVotes.matchDate).toLocaleDateString()}</p>
-                    <p><strong>Time:</strong> {selectedMatchForVotes.matchTime}</p>
-                  </div>
-                </div>
-
-                <div className="vote-summary">
-                  <div className="vote-summary-stats">
-                    <div className="summary-stat">
-                      <span className="summary-label">Home Win</span>
-                      <span className="summary-count">{selectedMatchForVotes.votes?.home || 0}</span>
-                    </div>
-                    <div className="summary-stat">
-                      <span className="summary-label">Draw</span>
-                      <span className="summary-count">{selectedMatchForVotes.votes?.draw || 0}</span>
-                    </div>
-                    <div className="summary-stat">
-                      <span className="summary-label">Away Win</span>
-                      <span className="summary-count">{selectedMatchForVotes.votes?.away || 0}</span>
-                    </div>
-                  </div>
-                  <div className="vote-total">
-                    <strong>Total Votes: </strong>
-                    {(selectedMatchForVotes.votes?.home || 0) + 
-                     (selectedMatchForVotes.votes?.draw || 0) + 
-                     (selectedMatchForVotes.votes?.away || 0)}
-                  </div>
-                </div>
-
-                <div className="vote-users-section">
-                  <h3>User Votes & Predictions</h3>
-                  {selectedMatchForVotes.userVotes && selectedMatchForVotes.userVotes.length > 0 ? (
-                    <div className="vote-users-list">
-                      {selectedMatchForVotes.userVotes.map((userVote, index) => (
-                        <div key={index} className="vote-user-card">
-                          <div className="vote-user-header">
-                            <div className="vote-user-info">
-                              {userVote.avatar ? (
-                                <img src={userVote.avatar} alt={userVote.username} className="vote-user-avatar" />
-                              ) : (
-                                <div className="vote-user-avatar-placeholder">
-                                  {userVote.username?.charAt(0)?.toUpperCase() || '?'}
-                                </div>
-                              )}
-                              <span className="vote-username">{userVote.username}</span>
-                            </div>
-                            {userVote.voteChoice && (
-                              <span className={`vote-choice-badge ${userVote.voteChoice}`}>
-                                {userVote.voteChoice === 'home' ? 'Home Win' : 
-                                 userVote.voteChoice === 'draw' ? 'Draw' : 'Away Win'}
-                              </span>
-                            )}
-                          </div>
-                          {userVote.scorePrediction ? (
-                            <div className="vote-user-prediction">
-                              <span className="prediction-label">Score Prediction:</span>
-                              <div className="prediction-score">
-                                <span className="score-team">{selectedMatchForVotes.homeTeam}</span>
-                                <span className="score-value">{userVote.scorePrediction.homeScore}</span>
-                                <span className="score-separator">-</span>
-                                <span className="score-value">{userVote.scorePrediction.awayScore}</span>
-                                <span className="score-team">{selectedMatchForVotes.awayTeam}</span>
-                              </div>
-                              {userVote.scorePrediction.pointsAwarded && (
-                                <span className="points-awarded">✓ Points Awarded</span>
-                              )}
-                            </div>
-                          ) : (
-                            <div className="vote-user-prediction">
-                              <span className="no-prediction">No score prediction</span>
-                            </div>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="no-votes">
-                      <p>No votes yet for this match</p>
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
     </div>
   );
 };
 
-export default Matches;
-
+export default LocalLeagues;

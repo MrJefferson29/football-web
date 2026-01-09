@@ -217,5 +217,33 @@ export const productsAPI = {
   },
 };
 
+// Prediction Forums API
+export const predictionForumsAPI = {
+  getPredictionForums: async () => {
+    const response = await api.get('/prediction-forums');
+    return response.data;
+  },
+  getPredictionForum: async (id) => {
+    const response = await api.get(`/prediction-forums/${id}`);
+    return response.data;
+  },
+  getAllUsers: async () => {
+    const response = await api.get('/prediction-forums/users/list');
+    return response.data;
+  },
+  createPredictionForum: async (forumData) => {
+    const response = await api.post('/prediction-forums', forumData);
+    return response.data;
+  },
+  updatePredictionForum: async (id, forumData) => {
+    const response = await api.put(`/prediction-forums/${id}`, forumData);
+    return response.data;
+  },
+  deletePredictionForum: async (id) => {
+    const response = await api.delete(`/prediction-forums/${id}`);
+    return response.data;
+  },
+};
+
 export default api;
 
